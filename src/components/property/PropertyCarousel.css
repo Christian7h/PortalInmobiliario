@@ -1,0 +1,106 @@
+/* Estilos para el carrusel de propiedades */
+swiper-container {
+  width: 100%;
+  height: 100%;
+  padding: 10px 0;
+  position: relative;
+  margin-bottom: 30px;
+}
+
+swiper-slide {
+  width: auto;
+  display: flex;
+  justify-content: center;
+}
+
+/* Botones de navegación - aseguramos que sean visibles */
+swiper-container::part(button-prev),
+swiper-container::part(button-next) {
+  color: #f59e0b !important;
+  background-color: white !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  transform: translateY(-50%) !important;
+  margin: 0 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 10 !important;
+}
+
+swiper-container::part(button-prev)::after,
+swiper-container::part(button-next)::after {
+  font-size: 18px !important;
+  font-weight: bold !important;
+}
+
+swiper-container::part(button-prev):hover,
+swiper-container::part(button-next):hover {
+  background-color: #f59e0b !important;
+  color: white !important;
+}
+
+/* Paginación */
+swiper-container::part(pagination) {
+  bottom: 0px !important;
+  position: relative !important;
+  margin-top: 15px !important;
+}
+
+swiper-container::part(bullet) {
+  width: 10px !important;
+  height: 10px !important;
+  background-color: #e5e7eb !important;
+  opacity: 1 !important;
+  margin: 0 5px !important;
+}
+
+swiper-container::part(bullet-active) {
+  background-color: #f59e0b !important;
+  width: 12px !important;
+  height: 12px !important;
+}
+
+/* Estilos para carruseles destacados */
+.featured-swiper swiper-slide {
+  height: auto;
+}
+
+/* Ajustar el ancho de slides para diferentes pantallas usando clases de utilidad */
+@media (min-width: 1280px) {
+  swiper-slide {
+    width: 20% !important;
+    margin-right: 10px;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  swiper-slide {
+    width: 25% !important;
+    margin-right: 10px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  swiper-slide {
+    width: 33.333% !important;
+    margin-right: 10px;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 767px) {
+  swiper-slide {
+    width: 50% !important;
+    margin-right: 10px;
+  }
+}
+
+@media (max-width: 639px) {
+  swiper-slide {
+    width: 100% !important;
+  }
+}
