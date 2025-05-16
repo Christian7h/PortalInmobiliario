@@ -1,34 +1,29 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { useQuery } from '@tanstack/react-query';
+import { fetchCompanyProfile } from '../lib/api';
 import { CompanyProfile } from '../types';
 
 function About() {
-  const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Utilizamos useQuery para memorizar la consulta
+  const { 
+    data: companyProfile, 
+    isLoading: loading, 
+    error 
+  } = useQuery<CompanyProfile, Error>({
+    queryKey: ['companyProfile'], // clave única para identificar esta consulta en la caché
+    queryFn: fetchCompanyProfile,
+    staleTime: 1000 * 60 * 10, // 10 minutos antes de considerar los datos obsoletos
+  });
 
-  useEffect(() => {
-    const fetchCompanyProfile = async () => {
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from('company_profile')
-          .select('*')
-          .single();
-        
-        if (error) {
-          console.error('Error fetching company profile:', error);
-        } else {
-          setCompanyProfile(data);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCompanyProfile();
-  }, []);
+  // Si hay un error en la consulta, mostramos un mensaje
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          Error: No se pudo cargar la información de la empresa.
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

@@ -1,60 +1,26 @@
-import { useEffect, useState } from 'react';
+// filepath: src/components/property/FeaturedProperties.tsx
+import { useQuery } from '@tanstack/react-query';
 import PropertyCarousel from './PropertyCarousel';
-import { supabase } from '../../lib/supabase';
 import type { Property } from '../../types';
+import { fetchFeaturedProperties } from '../../lib/api';
 
 const FeaturedProperties: React.FC = () => {
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchFeaturedProperties = async () => {
-      try {
-        setLoading(true);
-        
-        // Get featured properties
-        const { data: propertiesData, error: propertiesError } = await supabase
-          .from('properties')
-          .select('*')
-          .eq('is_featured', true)
-          .order('created_at', { ascending: false })
-          .limit(10);
-        
-        if (propertiesError) throw propertiesError;
-
-        // Get images for each property
-        const propertiesWithImages = await Promise.all(
-          propertiesData.map(async (property) => {
-            const { data: imageData } = await supabase
-              .from('property_images')
-              .select('*')
-              .eq('property_id', property.id);
-            
-            return {
-              ...property,
-              images: imageData || [],
-            };
-          })
-        );
-        
-        setProperties(propertiesWithImages);
-      } catch (error) {
-        setError('Error al cargar propiedades destacadas');
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFeaturedProperties();
-  }, []);
+  // Usamos useQuery para obtener y memorizar propiedades destacadas
+  const { 
+    data: properties = [], 
+    isLoading: loading, 
+    error 
+  } = useQuery<Property[], Error>({
+    queryKey: ['featuredProperties'],
+    queryFn: fetchFeaturedProperties,
+    staleTime: 1000 * 60 * 5, // 5 minutos antes de considerar los datos obsoletos
+  });
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-12">
-        <div className="flex justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
+      <div className="container mx-auto px-4">
+        <div className="text-center py-8">
+          <div className="animate-spin inline-block rounded-full h-8 w-8 border-t-2 border-b-2 border-amber-500"></div>
         </div>
       </div>
     );
@@ -62,9 +28,9 @@ const FeaturedProperties: React.FC = () => {
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4">
         <div className="bg-red-50 border border-red-200 text-red-800 rounded-md p-4">
-          <p>{error}</p>
+          <p>Error al cargar las propiedades destacadas.</p>
         </div>
       </div>
     );
@@ -78,8 +44,8 @@ const FeaturedProperties: React.FC = () => {
     <PropertyCarousel
       properties={properties}
       title="Propiedades Destacadas"
-      viewAllLink="/destacados"
-      slidesPerView={3}
+      viewAllLink="/"
+      slidesPerView={4}
       autoplay={true}
       featured={true}
     />

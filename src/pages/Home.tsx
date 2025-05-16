@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+// filepath: src/pages/Home.tsx
+import { useState } from 'react';
+import { useQueries } from '@tanstack/react-query';
 import PropertySearch from '../components/property/PropertySearch';
 import FeaturedProperties from '../components/property/FeaturedProperties';
 import PropertyCarousel from '../components/property/PropertyCarousel';
 import type { Property, PropertyType } from '../types';
 import { Building } from 'lucide-react';
+import { fetchPropertiesByCategory } from '../lib/api';
 
 const propertyCategories: { type: PropertyType; label: string }[] = [
   { type: 'casa', label: 'Casas' },
@@ -17,75 +19,34 @@ const propertyCategories: { type: PropertyType; label: string }[] = [
 ];
 
 const Home: React.FC = () => {
-  const [categoryProperties, setCategoryProperties] = useState<
-    Record<PropertyType, Property[]>
-  >({} as Record<PropertyType, Property[]>);
+  // Utilizamos useQueries para hacer múltiples consultas en paralelo
+  const categoryResults = useQueries({
+    queries: propertyCategories.map(category => ({
+      queryKey: ['properties', category.type],
+      queryFn: () => fetchPropertiesByCategory(category.type),
+      staleTime: 1000 * 60 * 5, // 5 minutos antes de considerar datos obsoletos
+    }))
+  });
   
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchCategoryProperties = async () => {
-      try {
-        setLoading(true);
-        
-        // Fetch properties for each category
-        const categoryData: Record<PropertyType, Property[]> = {} as Record<PropertyType, Property[]>;
-        
-        await Promise.all(
-          propertyCategories.map(async (category) => {
-            const { data: propertiesData } = await supabase
-              .from('properties')
-              .select('*')
-              .eq('property_type', category.type)
-              .order('created_at', { ascending: false })
-              .limit(10);
-            
-            // Get images for each property
-            if (propertiesData && propertiesData.length > 0) {
-              const propertiesWithImages = await Promise.all(
-                propertiesData.map(async (property) => {
-                  const { data: imageData } = await supabase
-                    .from('property_images')
-                    .select('*')
-                    .eq('property_id', property.id);
-                  
-                  return {
-                    ...property,
-                    images: imageData || [],
-                  };
-                })
-              );
-              
-              categoryData[category.type] = propertiesWithImages;
-            } else {
-              categoryData[category.type] = [];
-            }
-          })
-        );
-        
-        setCategoryProperties(categoryData);
-      } catch (error) {
-        console.error('Error fetching properties:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCategoryProperties();
-  }, []);
+  // Preparar los datos para usarlos en el componente
+  const categoryProperties: Record<PropertyType, Property[]> = {} as Record<PropertyType, Property[]>;
+  const loading = categoryResults.some(query => query.isLoading);
+  
+  // Asignar los resultados de las consultas al objeto categoryProperties
+  categoryResults.forEach((result, index) => {
+    if (result.data) {
+      categoryProperties[propertyCategories[index].type] = result.data;
+    } else {
+      categoryProperties[propertyCategories[index].type] = [];
+    }
+  });
 
   return (
     <>
-      {/* Hero Section */}
-      <section 
-        className="relative h-[70vh] bg-cover bg-center flex items-center"
-        style={{ 
-          backgroundImage: 'url(https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1600)'
-        }}
-      >
-        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-        <div className="container mx-auto px-4 z-10 text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">
+      <section className="relative bg-slate-800 text-white py-24 px-4">
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-900 to-slate-800 opacity-90"></div>
+        <div className="relative container mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">
             Encuentra la propiedad de tus sueños
           </h1>
           <p className="text-xl text-white mb-8 max-w-3xl mx-auto">

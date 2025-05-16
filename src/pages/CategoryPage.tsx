@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+// filepath: src/pages/CategoryPage.tsx
+import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { useQuery } from '@tanstack/react-query';
 import PropertyCard from '../components/property/PropertyCard';
 import { Property } from '../types';
 import { Filter, X, SlidersHorizontal } from 'lucide-react';
+import { searchFilteredProperties } from '../lib/api';
 
 const propertyTypeLabels: Record<string, string> = {
   casa: 'Casas',
@@ -28,8 +30,6 @@ const sortOptions = [
 function CategoryPage() {
   const { type } = useParams<{ type: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
 
   // Obtener parámetros de búsqueda
@@ -41,95 +41,42 @@ function CategoryPage() {
   const minBathrooms = searchParams.get('minBathrooms') || '';
   const sortBy = searchParams.get('sortBy') || 'newest';
 
+  // Utilizamos React Query para memorizar la consulta
+  const { 
+    data: properties = [], 
+    isLoading: loading 
+  } = useQuery<Property[], Error>({
+    queryKey: ['properties', type, location, minPrice, maxPrice, currency, minBedrooms, minBathrooms, sortBy],
+    queryFn: () => searchFilteredProperties(
+      type || 'casa', 
+      { location, minPrice, maxPrice, currency, minBedrooms, minBathrooms, sortBy }
+    ),
+    staleTime: 1000 * 60 * 5, // 5 minutos antes de considerar datos obsoletos
+    enabled: !!type, // Solo ejecuta la consulta si hay un tipo de propiedad
+  });
+
+  // Actualizar los filtros activos cuando cambien los parámetros
+  useEffect(() => {
+    const filters = [];
+    if (location) filters.push(`Ubicación: ${location}`);
+    if (minPrice && maxPrice) {
+      filters.push(`Precio: ${currency} ${minPrice} - ${maxPrice}`);
+    } else if (minPrice) {
+      filters.push(`Precio mín.: ${currency} ${minPrice}`);
+    } else if (maxPrice) {
+      filters.push(`Precio máx.: ${currency} ${maxPrice}`);
+    }
+    if (minBedrooms) filters.push(`Dormitorios: ${minBedrooms}+`);
+    if (minBathrooms) filters.push(`Baños: ${minBathrooms}+`);
+    
+    setActiveFilters(filters);
+  }, [location, minPrice, maxPrice, currency, minBedrooms, minBathrooms]);
+
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newParams = new URLSearchParams(searchParams);
     newParams.set('sortBy', e.target.value);
     setSearchParams(newParams);
   };
-
-  useEffect(() => {
-    async function fetchProperties() {
-      try {
-        setLoading(true);
-        
-        // Iniciar la consulta
-        let query = supabase
-          .from('properties')
-          .select('*, property_images(*)')
-          .eq('property_type', type);
-        
-        // Aplicar filtros adicionales si existen
-        if (location) {
-          query = query.or(`city.ilike.%${location}%,address.ilike.%${location}%`);
-        }
-        
-        if (currency && minPrice) {
-          query = query.eq('currency', currency).gte('price', minPrice);
-        }
-        
-        if (currency && maxPrice) {
-          query = query.eq('currency', currency).lte('price', maxPrice);
-        }
-        
-        if (minBedrooms) {
-          query = query.gte('bedrooms', minBedrooms);
-        }
-        
-        if (minBathrooms) {
-          query = query.gte('bathrooms', minBathrooms);
-        }
-        
-        // Aplicar ordenamiento
-        switch(sortBy) {
-          case 'price_asc':
-            query = query.order('price', { ascending: true });
-            break;
-          case 'price_desc':
-            query = query.order('price', { ascending: false });
-            break;
-          case 'newest':
-          default:
-            query = query.order('created_at', { ascending: false });
-            break;
-        }
-        
-        const { data, error } = await query;
-
-        if (error) throw error;
-        
-        // Asegurarse de que cada propiedad tenga un array de imágenes
-        const propertiesWithImages = data?.map(property => {
-          return {
-            ...property,
-            images: property.property_images || []
-          };
-        }) || [];
-        
-        setProperties(propertiesWithImages);
-        
-        // Actualizar filtros activos para mostrar
-        const filters = [];
-        if (location) filters.push(`Ubicación: ${location}`);
-        if (minPrice || maxPrice) {
-          const priceLabel = [];
-          if (minPrice) priceLabel.push(`Desde ${currency} ${Number(minPrice).toLocaleString('es-CL')}`);
-          if (maxPrice) priceLabel.push(`Hasta ${currency} ${Number(maxPrice).toLocaleString('es-CL')}`);
-          filters.push(priceLabel.join(' '));
-        }
-        if (minBedrooms) filters.push(`${minBedrooms}+ dormitorios`);
-        if (minBathrooms) filters.push(`${minBathrooms}+ baños`);
-        
-        setActiveFilters(filters);
-        
-      } catch (error) {
-        console.error('Error fetching properties:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchProperties();
-  }, [type, location, minPrice, maxPrice, currency, minBedrooms, minBathrooms, sortBy]);
 
   if (loading) {
     return (
@@ -223,8 +170,8 @@ function CategoryPage() {
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {properties.map((property) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {properties.map(property => (
             <PropertyCard key={property.id} property={property} />
           ))}
         </div>

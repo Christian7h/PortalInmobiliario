@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+// filepath: src/pages/Contact.tsx
+import React, { useState } from 'react';
 import { Mail, Phone, MapPin } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { useQuery } from '@tanstack/react-query';
+import { fetchCompanyProfile } from '../lib/api';
 import { CompanyProfile } from '../types';
 
 const Contact = () => {
-  const [companyProfile, setCompanyProfile] = useState<CompanyProfile | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -15,26 +16,16 @@ const Contact = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchCompanyProfile = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('company_profile')
-          .select('*')
-          .single();
-        
-        if (error) {
-          console.error('Error fetching company profile:', error);
-        } else {
-          setCompanyProfile(data);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-      }
-    };
-
-    fetchCompanyProfile();
-  }, []);
+  // Usamos useQuery para obtener y memorizar el perfil de la empresa
+  const { 
+    data: companyProfile, 
+    isLoading: profileLoading, 
+    error: profileError 
+  } = useQuery<CompanyProfile, Error>({
+    queryKey: ['companyProfile'],
+    queryFn: fetchCompanyProfile,
+    staleTime: 1000 * 60 * 15, // 15 minutos antes de considerar los datos obsoletos
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -78,40 +69,50 @@ const Contact = () => {
         <div className="bg-white rounded-lg shadow-lg p-8">
           <h2 className="text-2xl font-semibold mb-6">Información de Contacto</h2>
           
-          <div className="space-y-6">
-            {companyProfile?.address && (
-              <div className="flex items-center">
-                <MapPin className="h-6 w-6 text-amber-600 mr-4" />
-                <div>
-                  <p className="font-medium">Dirección</p>
-                  <p className="text-gray-600">{companyProfile.address}</p>
+          {profileLoading ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-amber-500"></div>
+            </div>
+          ) : profileError ? (
+            <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md">
+              No se pudo cargar la información de contacto.
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {companyProfile?.address && (
+                <div className="flex items-center">
+                  <MapPin className="h-6 w-6 text-amber-600 mr-4" />
+                  <div>
+                    <p className="font-medium">Dirección</p>
+                    <p className="text-gray-600">{companyProfile.address}</p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {companyProfile?.contact_phone && (
-              <div className="flex items-center">
-                <Phone className="h-6 w-6 text-amber-600 mr-4" />
-                <div>
-                  <p className="font-medium">Teléfono</p>
-                  <p className="text-gray-600">{companyProfile.contact_phone}</p>
-                  {companyProfile?.whatsapp_number && (
-                    <p className="text-gray-600">WhatsApp: {companyProfile.whatsapp_number}</p>
-                  )}
+              {companyProfile?.contact_phone && (
+                <div className="flex items-center">
+                  <Phone className="h-6 w-6 text-amber-600 mr-4" />
+                  <div>
+                    <p className="font-medium">Teléfono</p>
+                    <p className="text-gray-600">{companyProfile.contact_phone}</p>
+                    {companyProfile?.whatsapp_number && (
+                      <p className="text-gray-600">WhatsApp: {companyProfile.whatsapp_number}</p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {companyProfile?.contact_email && (
-              <div className="flex items-center">
-                <Mail className="h-6 w-6 text-amber-600 mr-4" />
-                <div>
-                  <p className="font-medium">Email</p>
-                  <p className="text-gray-600">{companyProfile.contact_email}</p>
+              {companyProfile?.contact_email && (
+                <div className="flex items-center">
+                  <Mail className="h-6 w-6 text-amber-600 mr-4" />
+                  <div>
+                    <p className="font-medium">Email</p>
+                    <p className="text-gray-600">{companyProfile.contact_email}</p>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="bg-white rounded-lg shadow-lg p-8">

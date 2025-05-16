@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
 import { MapPin, Bed, Bath, Square as SquareFoot, Phone, Mail, Share2, Building } from 'lucide-react';
 import type { Property } from '../types';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { register } from 'swiper/element/bundle';
 import L from 'leaflet';
+import { useQuery } from '@tanstack/react-query';
+import { fetchPropertyById } from '../lib/api';
 
 // Corrigiendo el problema de íconos de Leaflet en el entorno de React
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -27,65 +27,21 @@ register();
 
 const PropertyDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [property, setProperty] = useState<Property | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchProperty = async () => {
-      try {
-        if (!id) throw new Error('No property ID provided');
-        
-        setLoading(true);
-        
-        // Get property
-        const { data: propertyData, error: propertyError } = await supabase
-          .from('properties')
-          .select('*')
-          .eq('id', id)
-          .single();
-        
-        if (propertyError) throw propertyError;
-        if (!propertyData) throw new Error('Property not found');
-        
-        // Get images
-        const { data: imageData } = await supabase
-          .from('property_images')
-          .select('*')
-          .eq('property_id', id);
-        
-        // Get company profile (principal perfil utilizado para mostrar información de contacto)
-        const { data: companyProfileData } = await supabase
-          .from('company_profile')  // Usamos el nombre correcto de la tabla según el schema
-          .select('id, company_name, contact_email, contact_phone, logo_url, description, whatsapp_number')
-          .eq('user_id', propertyData.user_id)
-          .single();
-        
-        // Si no hay profile de compañía, intentamos obtener el perfil personal
-        let profileToUse = companyProfileData;
-        if (!profileToUse) {
-          const { data: personalProfileData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('user_id', propertyData.user_id)
-            .single();
-          profileToUse = personalProfileData;
-        }
-        
-        setProperty({
-          ...propertyData,
-          images: imageData || [],
-          profile: profileToUse || null,
-        } as Property);
-      } catch (error) {
-        console.error(error);
-        setError('Error al cargar la propiedad. Inténtalo de nuevo más tarde.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProperty();
-  }, [id]);
+  
+  // Usamos React Query para gestionar el estado y la caché de los datos
+  const { 
+    data: property,
+    isLoading: loading,
+    error
+  } = useQuery<Property, Error>({
+    queryKey: ['property', id], // clave única para identificar esta consulta
+    queryFn: () => {
+      if (!id) throw new Error('No property ID provided');
+      return fetchPropertyById(id);
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutos antes de considerar los datos obsoletos
+    enabled: !!id, // Solo ejecuta la consulta si hay un ID
+  });
 
   const formatPrice = (price: number, currency: string) => {
     if (currency === 'UF') {
@@ -108,7 +64,7 @@ const PropertyDetail: React.FC = () => {
     return (
       <div className="container mx-auto px-4 py-12">
         <div className="bg-red-50 border border-red-200 text-red-800 rounded-md p-4">
-          <p>{error || 'Propiedad no encontrada'}</p>
+          <p>{error instanceof Error ? error.message : 'Propiedad no encontrada'}</p>
           <Link to="/" className="mt-4 inline-block text-blue-600 hover:underline">
             Volver al inicio
           </Link>
