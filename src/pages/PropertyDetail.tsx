@@ -1,9 +1,27 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { MapPin, Bed, Bath, Square as SquareFoot, Phone, Mail, Share2 } from 'lucide-react';
+import { MapPin, Bed, Bath, Square as SquareFoot, Phone, Mail, Share2, Building } from 'lucide-react';
 import type { Property } from '../types';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 import { register } from 'swiper/element/bundle';
+import L from 'leaflet';
+
+// Corrigiendo el problema de íconos de Leaflet en el entorno de React
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+// Configurar el ícono por defecto para los marcadores de Leaflet
+const defaultIcon = L.icon({
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  tooltipAnchor: [16, -28],
+  shadowSize: [41, 41]
+});
 
 register();
 
@@ -36,17 +54,28 @@ const PropertyDetail: React.FC = () => {
           .select('*')
           .eq('property_id', id);
         
-        // Get profile
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('*')
+        // Get company profile (principal perfil utilizado para mostrar información de contacto)
+        const { data: companyProfileData } = await supabase
+          .from('company_profile')  // Usamos el nombre correcto de la tabla según el schema
+          .select('id, company_name, contact_email, contact_phone, logo_url, description, whatsapp_number')
           .eq('user_id', propertyData.user_id)
           .single();
+        
+        // Si no hay profile de compañía, intentamos obtener el perfil personal
+        let profileToUse = companyProfileData;
+        if (!profileToUse) {
+          const { data: personalProfileData } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('user_id', propertyData.user_id)
+            .single();
+          profileToUse = personalProfileData;
+        }
         
         setProperty({
           ...propertyData,
           images: imageData || [],
-          profile: profileData || null,
+          profile: profileToUse || null,
         } as Property);
       } catch (error) {
         console.error(error);
@@ -55,7 +84,6 @@ const PropertyDetail: React.FC = () => {
         setLoading(false);
       }
     };
-
     fetchProperty();
   }, [id]);
 
@@ -116,7 +144,7 @@ const PropertyDetail: React.FC = () => {
                   <swiper-container
                     navigation="true"
                     pagination="true"
-                    class="h-full w-full"
+                    className="h-full w-full"
                   >
                     {property.images.map((image) => (
                       <swiper-slide key={image.id}>
@@ -189,15 +217,37 @@ const PropertyDetail: React.FC = () => {
                   />
                 </div>
 
-                {/* Location Map - Will be replaced with react-leaflet */}
+                {/* Location Map */}
                 <div className="mb-6">
                   <h2 className="text-xl font-semibold text-slate-800 mb-4">Ubicación</h2>
-                  <div className="bg-gray-100 h-80 rounded-lg">
-                    {/* Map will go here using react-leaflet */}
-                    <div className="w-full h-full flex items-center justify-center text-gray-500">
-                      <p>Mapa de ubicación se mostrará aquí</p>
+                  {property.latitude && property.longitude ? (
+                    <div className="h-80 rounded-lg overflow-hidden">
+                      <MapContainer 
+                        center={[property.latitude, property.longitude]} 
+                        zoom={15} 
+                        scrollWheelZoom={false}
+                        style={{ height: '100%', width: '100%' }}
+                      >
+                        <TileLayer
+                          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        />
+                        <Marker 
+                          position={[property.latitude, property.longitude]}
+                          icon={defaultIcon}
+                        >
+                          <Popup>
+                            <strong>{property.title}</strong><br />
+                            {property.address}, {property.city}
+                          </Popup>
+                        </Marker>
+                      </MapContainer>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="bg-gray-100 h-80 rounded-lg flex items-center justify-center text-gray-500">
+                      <p>No hay datos de ubicación disponibles</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -211,46 +261,73 @@ const PropertyDetail: React.FC = () => {
               <div className="mb-6">
                 <p className="text-sm text-gray-600 mb-2">Información de contacto:</p>
                 {property.profile ? (
-                  <div className="flex items-center mb-3">
-                    {property.profile.logo_url ? (
-                      <img 
-                        src={property.profile.logo_url} 
-                        alt={property.profile.company_name}
-                        className="w-12 h-12 object-cover rounded-full mr-3"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mr-3">
-                        <Building className="w-6 h-6 text-amber-600" />
+                  <>
+                    <div className="flex items-center mb-3">
+                      {property.profile.logo_url ? (
+                        <img 
+                          src={property.profile.logo_url} 
+                          alt={property.profile.company_name}
+                          className="w-12 h-12 object-cover rounded-full mr-3"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mr-3">
+                          <Building className="w-6 h-6 text-amber-600" />
+                        </div>
+                      )}
+                      <div>
+                        <p className="font-medium">{property.profile.company_name}</p>
+                        <p className="text-sm text-gray-600">Agente Inmobiliario</p>
                       </div>
-                    )}
-                    <div>
-                      <p className="font-medium">{property.profile.company_name}</p>
-                      <p className="text-sm text-gray-600">Agente Inmobiliario</p>
                     </div>
-                  </div>
+                    
+                    {/* Mostramos solo la información esencial de contacto */}
+                    <div className="flex flex-col space-y-2 mb-6">
+                      {/* Teléfono de contacto - siempre visible según el schema (NOT NULL) */}
+                      <a 
+                        href={`tel:${property.profile.contact_phone}`}
+                        className="flex items-center text-gray-600 hover:text-amber-600"
+                      >
+                        <Phone size={18} className="mr-2" />
+                        <span>{property.profile.contact_phone}</span>
+                      </a>
+                      
+                      {/* Email de contacto - siempre visible según el schema (NOT NULL) */}
+                      <a 
+                        href={`mailto:${property.profile.contact_email}`}
+                        className="flex items-center text-gray-600 hover:text-amber-600"
+                      >
+                        <Mail size={18} className="mr-2" />
+                        <span>{property.profile.contact_email}</span>
+                      </a>
+                      
+                      {/* WhatsApp - solo si está disponible */}
+                      {property.profile.whatsapp_number && (
+                        <a 
+                          href={`https://wa.me/${property.profile.whatsapp_number.replace(/[^0-9]/g, '')}`} 
+                          className="flex items-center text-green-500 hover:text-green-700"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347Z"/>
+                          </svg>
+                          <span>WhatsApp</span>
+                        </a>
+                      )}
+                    </div>
+                  </>
                 ) : (
-                  <p className="text-sm text-gray-600 mb-3">Agente Inmobiliario</p>
+                  <div className="flex flex-col space-y-2 mb-6">
+                    <p className="text-sm text-gray-600 mb-3">Información de contacto no disponible</p>
+                  </div>
                 )}
-                
-                <div className="flex flex-col space-y-2 mb-6">
-                  <a 
-                    href={`tel:${property.profile?.contact_phone || '+56912345678'}`}
-                    className="flex items-center text-gray-600 hover:text-amber-600"
-                  >
-                    <Phone size={18} className="mr-2" />
-                    <span>{property.profile?.contact_phone || '+56 9 1234 5678'}</span>
-                  </a>
-                  <a 
-                    href={`mailto:${property.profile?.contact_email || 'contacto@propportal.com'}`}
-                    className="flex items-center text-gray-600 hover:text-amber-600"
-                  >
-                    <Mail size={18} className="mr-2" />
-                    <span>{property.profile?.contact_email || 'contacto@propportal.com'}</span>
-                  </a>
-                </div>
               </div>
               
-              <form className="mb-6">
+              <form className="mb-6" onSubmit={(e) => {
+                e.preventDefault();
+                // En una implementación real, aquí enviarías el formulario a un backend
+                alert('Mensaje enviado. Te contactaremos pronto.');
+              }}>
                 <div className="mb-4">
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                     Nombre
@@ -258,6 +335,7 @@ const PropertyDetail: React.FC = () => {
                   <input
                     type="text"
                     id="name"
+                    required
                     className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
@@ -288,8 +366,9 @@ const PropertyDetail: React.FC = () => {
                   <textarea
                     id="message"
                     rows={4}
+                    required
                     className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500"
-                    defaultValue={`Me interesa esta propiedad con referencia ${property.id}`}
+                    defaultValue={`Hola ${property.profile?.company_name || ''}. Me interesa la propiedad "${property.title}" ubicada en ${property.address}, ${property.city} (Referencia: ${property.id}). Me gustaría recibir más información.`}
                   ></textarea>
                 </div>
                 <button

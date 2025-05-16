@@ -97,19 +97,13 @@ function CategoryPage() {
 
         if (error) throw error;
         
-        // Depuración
-        console.log('Datos de propiedades recibidos:', data);
-        
         // Asegurarse de que cada propiedad tenga un array de imágenes
         const propertiesWithImages = data?.map(property => {
-          console.log('Property_images para propiedad', property.id, ':', property.property_images);
           return {
             ...property,
             images: property.property_images || []
           };
         }) || [];
-        
-        console.log('Propiedades transformadas:', propertiesWithImages);
         
         setProperties(propertiesWithImages);
         

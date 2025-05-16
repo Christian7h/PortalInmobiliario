@@ -16,6 +16,7 @@ interface PropertyCarouselProps {
   featured?: boolean;
 }
 
+// Extendemos las interfaces JSX directamente sin usar namespace
 declare global {
   namespace JSX {
     interface IntrinsicElements {
@@ -61,7 +62,6 @@ const PropertyCarousel: React.FC<PropertyCarouselProps> = ({
     if (swiperEl.swiper && typeof swiperEl.swiper.destroy === 'function') {
       // @ts-expect-error: La interfaz TypeScript puede no estar actualizada
       swiperEl.swiper.destroy(true, true);
-      console.log('Instancia anterior de Swiper destruida');
     }
 
     // Configuración responsive
@@ -116,10 +116,10 @@ const PropertyCarousel: React.FC<PropertyCarouselProps> = ({
       },
       on: {
         init() {
-          console.log('Swiper inicializado correctamente');
+          // Inicializado correctamente
         },
         slideChange() {
-          console.log('Slide cambió');
+          // Evento de cambio de slide
         }
       }
     };
@@ -140,15 +140,13 @@ const PropertyCarousel: React.FC<PropertyCarouselProps> = ({
           if (typeof swiperEl.initialize === 'function') {
             // @ts-expect-error: La interfaz TypeScript puede no estar actualizada
             swiperEl.initialize();
-            console.log('Swiper inicializado con el método initialize()');
           } else {
             // Alternativa si no existe el método initialize
             Object.assign(swiperEl, swiperParams);
-            console.log('Swiper inicializado con Object.assign()');
           }
         }, 0);
-      } catch (error) {
-        console.error('Error inicializando Swiper:', error);
+      } catch {
+        // Error silenciado para evitar logs en consola
       }
     };
     
@@ -161,10 +159,9 @@ const PropertyCarousel: React.FC<PropertyCarouselProps> = ({
         if (swiperEl.swiper && typeof swiperEl.swiper.destroy === 'function') {
           // @ts-expect-error: La interfaz TypeScript puede no estar actualizada
           swiperEl.swiper.destroy(true, true);
-          console.log('Swiper destruido en cleanup');
         }
-      } catch (error) {
-        console.error('Error al limpiar Swiper:', error);
+      } catch {
+        // Error silenciado para evitar logs en consola
       }
     };
   }, [properties.length, slidesPerView, autoplay, featured]);

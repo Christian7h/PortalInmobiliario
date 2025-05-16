@@ -14,16 +14,16 @@ export default function AdminProperties() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  React.useEffect(() => {
-    fetchProperties();
-  }, []);
-
-  async function fetchProperties() {
+  // Utilizamos useCallback para memorizar la función fetchProperties
+  const fetchProperties = React.useCallback(async () => {
     try {
+      if (!user) return;
+      
+      setLoading(true);
       const { data, error } = await supabase
         .from('properties')
         .select('*')
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -33,7 +33,12 @@ export default function AdminProperties() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [user]); // user es una dependencia de esta función
+
+  // Ahora podemos usar fetchProperties como dependencia del useEffect
+  React.useEffect(() => {
+    fetchProperties();
+  }, [fetchProperties]);
 
   async function handleDelete(id: string) {
     if (!window.confirm('¿Estás seguro de que quieres eliminar esta propiedad?')) {

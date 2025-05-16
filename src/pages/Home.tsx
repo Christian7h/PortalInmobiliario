@@ -12,6 +12,8 @@ const propertyCategories: { type: PropertyType; label: string }[] = [
   { type: 'terreno', label: 'Terrenos' },
   { type: 'oficina', label: 'Oficinas' },
   { type: 'local', label: 'Locales' },
+  { type: 'parcela', label: 'Parcelas' },
+  { type: 'bodega', label: 'Bodegas' },
 ];
 
 const Home: React.FC = () => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { PropertyImage } from '../../types';
 import { uploadImage, deleteImage } from '../../lib/storage';
@@ -13,9 +13,21 @@ const PropertyImages: React.FC<PropertyImagesProps> = ({
   propertyId, 
   existingImages, 
   onImagesChange 
-}) => {
-  const [uploading, setUploading] = useState(false);
+}) => {  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  
+  // Obtener el ID del usuario autenticado
+  useEffect(() => {
+    async function getUserId() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUserId(session.user.id);
+      }
+    }
+    
+    getUserId();
+  }, []);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -34,14 +46,13 @@ const PropertyImages: React.FC<PropertyImagesProps> = ({
         // Subir la imagen a Supabase Storage
         const imageUrl = await uploadImage(file, 'property_images');
         
-        if (imageUrl) {
-          // Crear un objeto de imagen temporal
+        if (imageUrl) {          // Crear un objeto de imagen temporal
           const newImage: PropertyImage = {
             id: `temp_${Date.now()}_${i}`, // ID temporal hasta que se guarde en la base de datos
             property_id: propertyId || '',
             image_url: imageUrl,
             is_primary: existingImages.length === 0 && i === 0, // Primera imagen como primaria si no hay otras
-            user_id: '',
+            user_id: userId || '', // Usar el ID del usuario autenticado
             created_at: new Date().toISOString()
           };
           

@@ -7,6 +7,12 @@ import { supabase } from "./supabase";
  * @returns URL pública del archivo o null si hay error
  */
 export const uploadImage = async (file: File, folder: string = 'property_images'): Promise<string | null> => {
+  // Verificar si el usuario está autenticado
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) {
+    console.error('Error: Usuario no autenticado. Debes iniciar sesión para subir imágenes.');
+    return null;
+  }
   try {
     if (!file) return null;
     
@@ -14,11 +20,15 @@ export const uploadImage = async (file: File, folder: string = 'property_images'
     const fileExt = file.name.split('.').pop();
     const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
     const filePath = `${folder}/${fileName}`;
-    
-    // Subir archivo a Supabase Storage
+      // Subir archivo a Supabase Storage con metadatos adicionales
     const { error: uploadError } = await supabase.storage
       .from('images')
-      .upload(filePath, file);
+      .upload(filePath, file, {
+        // Metadatos que pueden ser necesarios para cumplir con las políticas RLS
+        upsert: true, // Sobreescribir el archivo si ya existe
+        cacheControl: '3600',
+        contentType: file.type // Asegurar que el tipo de contenido se establece correctamente
+      });
     
     if (uploadError) {
       console.error('Error al subir la imagen:', uploadError);

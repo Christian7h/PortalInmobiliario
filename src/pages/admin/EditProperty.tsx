@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { PropertyImage, PropertyType, Currency } from '../../types';
 import PropertyImages from '../../components/property/PropertyImages';
+import LocationPicker from '../../components/property/LocationPicker';
 
 interface PropertyFormData {
   title: string;
@@ -273,6 +274,24 @@ const EditProperty = () => {
                 onChange={handleChange}
                 required
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500"
+              />
+            </div>
+            
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Ubicación en el Mapa</label>
+              <LocationPicker
+                initialPosition={
+                  formData.latitude && formData.longitude 
+                    ? [formData.latitude, formData.longitude] 
+                    : undefined
+                }
+                onLocationChange={(lat, lng) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    latitude: lat,
+                    longitude: lng
+                  }));
+                }}
               />
             </div>
             

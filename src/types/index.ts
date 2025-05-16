@@ -33,6 +33,7 @@ export interface Property {
   created_at: string;
   updated_at: string;
   images: PropertyImage[];
+  profile?: CompanyProfile;
 }
 
 export interface PropertyImage {
