@@ -1,16 +1,17 @@
 /* Estilos para el carrusel de propiedades */
 swiper-container {
   width: 100%;
-  height: 100%;
+  height: auto;
   padding: 10px 0;
   position: relative;
   margin-bottom: 30px;
 }
 
 swiper-slide {
-  width: auto;
+  height: auto;
   display: flex;
   justify-content: center;
+  width: 40% !important; /* Aseguramos que el width sea gestionado por Swiper */
 }
 
 /* Botones de navegación - aseguramos que sean visibles */
@@ -70,37 +71,26 @@ swiper-container::part(bullet-active) {
   height: auto;
 }
 
-/* Ajustar el ancho de slides para diferentes pantallas usando clases de utilidad */
-@media (min-width: 1280px) {
-  swiper-slide {
-    width: 20% !important;
-    margin-right: 10px;
+/* Mejorar el espaciado y la presentación de las tarjetas en el carrusel */
+swiper-slide > * {
+  width: 100%;
+  height: 100%;
+}
+
+/* Estilos adicionales para mejorar la presentación en diferentes tamaños */
+@media (min-width: 640px) {
+  swiper-slide > * {
+    margin: 0 5px;
   }
 }
 
-@media (min-width: 1024px) and (max-width: 1279px) {
-  swiper-slide {
-    width: 25% !important;
-    margin-right: 10px;
-  }
+/* Mejorar el espacio en el modo destacado */
+.featured-swiper swiper-slide > * {
+  border: 1px solid rgba(245, 158, 11, 0.1);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
-@media (min-width: 768px) and (max-width: 1023px) {
-  swiper-slide {
-    width: 33.333% !important;
-    margin-right: 10px;
-  }
-}
-
-@media (min-width: 640px) and (max-width: 767px) {
-  swiper-slide {
-    width: 50% !important;
-    margin-right: 10px;
-  }
-}
-
-@media (max-width: 639px) {
-  swiper-slide {
-    width: 100% !important;
-  }
+/* Añadir espacio adicional para el carrusel destacado */
+.featured-swiper {
+  padding-bottom: 20px;
 }

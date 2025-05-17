@@ -46,7 +46,7 @@ const PropertyCarousel: React.FC<PropertyCarouselProps> = ({
   properties, 
   title, 
   viewAllLink, 
-  slidesPerView = 5, // Cambiado a 5 por defecto
+  slidesPerView = 5,
   autoplay = true,
   featured = false
 }) => {
@@ -64,54 +64,60 @@ const PropertyCarousel: React.FC<PropertyCarouselProps> = ({
       swiperEl.swiper.destroy(true, true);
     }
 
-    // Configuración responsive
+    // Configuración responsive mejorada
     const swiperParams = {
       injectStyles: [
         `
           :host {
             --swiper-theme-color: #f59e0b;
             --swiper-navigation-size: 24px;
+            --swiper-pagination-bottom: -5px;
           }
         `
       ],
       slidesPerView: 1,  // Por defecto muestra 1 en móviles muy pequeños
-      spaceBetween: 20,
+      spaceBetween: 0,  // Usamos padding en los slides en lugar de space-between
       navigation: {
         enabled: true,
         hideOnClick: false
       },
       loop: false,
-      rewind: true, // Añade la capacidad de "rebobinar" al principio cuando se presiona siguiente en el último slide
+      rewind: true,
+      grabCursor: true,
+      preventClicksPropagation: false,
+      slideToClickedSlide: false,
       autoplay: autoplay ? {
         delay: 3000,
         disableOnInteraction: false,
-        stopOnLastSlide: true // Detiene el autoplay al llegar al último slide
+        pauseOnMouseEnter: true,
+        stopOnLastSlide: true
       } : false,
       breakpoints: {
-        // Estos son los puntos de quiebre donde cambia el número de tarjetas mostradas
+        // Configuración optimizada para diferentes tamaños de pantalla
         // Móvil pequeño
         480: { 
           slidesPerView: 1,
-          spaceBetween: 10
+          spaceBetween: 0
         },
         // Móvil grande
         640: { 
           slidesPerView: 2,
-          spaceBetween: 15
+          spaceBetween: 0
         },
         // Tablet
         768: { 
           slidesPerView: 3,
-          spaceBetween: 15
+          spaceBetween: 0
         },
         // Laptop pequeña
         1024: { 
           slidesPerView: 4,
-          spaceBetween: 20
+          spaceBetween: 0
         },
         // Desktop/Laptop grande
         1280: { 
-          slidesPerView: slidesPerView  // Usar el valor que viene como prop (5 por defecto)
+          slidesPerView: slidesPerView,
+          spaceBetween: 0
         },
       },
       on: {
@@ -171,15 +177,23 @@ const PropertyCarousel: React.FC<PropertyCarouselProps> = ({
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-slate-800">{title}</h2>
-        <a href={viewAllLink} className="text-amber-600 hover:underline font-medium">
-          Ver todo
-        </a>
-      </div>
+    <div className="w-full py-6">
+      {/* Sección de título si se está mostrando en la vista principal */}
+      {title && viewAllLink && (
+        <div className="flex items-center justify-between mb-6 px-2">
+          <h2 className="text-2xl font-bold text-slate-800">
+            {title}
+          </h2>
+          <a href={viewAllLink} className="text-amber-600 hover:text-amber-700 font-medium transition-colors flex items-center group">
+            Ver todas
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1 transition-transform duration-300 transform group-hover:translate-x-1">
+              <path d="m9 18 6-6-6-6"/>
+            </svg>
+          </a>
+        </div>
+      )}
 
-      <div className="relative px-4 md:px-10">
+      <div className="relative">
         <swiper-container
           ref={swiperElRef}
           init="false"
@@ -200,7 +214,9 @@ const PropertyCarousel: React.FC<PropertyCarouselProps> = ({
         >
           {properties.map((property) => (
             <swiper-slide key={property.id}>
-              <PropertyCard property={property} />
+              <div className="h-full p-2">
+                <PropertyCard property={property} />
+              </div>
             </swiper-slide>
           ))}
         </swiper-container>

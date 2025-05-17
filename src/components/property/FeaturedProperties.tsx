@@ -38,14 +38,12 @@ const FeaturedProperties: React.FC = () => {
 
   if (properties.length === 0) {
     return null;
-  }
-
-  return (
+  }  return (
     <PropertyCarousel
       properties={properties}
       title="Propiedades Destacadas"
-      viewAllLink="/"
-      slidesPerView={4}
+      viewAllLink="/propiedades"
+      slidesPerView={5}
       autoplay={true}
       featured={true}
     />

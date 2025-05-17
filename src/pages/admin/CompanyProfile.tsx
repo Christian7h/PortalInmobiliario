@@ -13,15 +13,19 @@ const CompanyProfilePage = () => {
   const [formData, setFormData] = useState<Partial<CompanyProfile>>({
     company_name: '',
     contact_email: '',
-    contact_phone: '',
-    address: '',
+    contact_phone: '',    address: '',
     description: '',
     logo_url: '',
     facebook_url: '',
     instagram_url: '',
     twitter_url: '',
     linkedin_url: '',
-    whatsapp_number: ''
+    whatsapp_number: '',
+    mission: '',
+    vision: '',
+    values: '',
+    history: '',
+    years_experience: 0
   });
   const [profileId, setProfileId] = useState<string | null>(null);
 
@@ -184,11 +188,10 @@ const CompanyProfilePage = () => {
           El perfil de la empresa se ha guardado correctamente.
         </div>
       )}
-      
-      <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-md">
+        <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-lg shadow-md">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h2 className="text-xl font-semibold mb-4">Información Básica</h2>
+            <h2 className="text-xl font-semibold mb-4 text-amber-600">Información Básica</h2>
             
             <div className="space-y-4">
               <div>
@@ -374,6 +377,87 @@ const CompanyProfilePage = () => {
                 />
               </div>
             </div>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 pt-8 border-t border-gray-200">
+          <div className="md:col-span-2">
+            <h2 className="text-xl font-semibold mb-4 text-amber-600">Información para la página "Nosotros"</h2>
+          </div>
+          
+          <div>
+            <label htmlFor="years_experience" className="block text-sm font-medium text-gray-700">
+              Años de experiencia
+            </label>
+            <input
+              type="number"
+              id="years_experience"
+              name="years_experience"
+              min="0"
+              value={formData.years_experience || ''}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500"
+            />
+          </div>
+          
+          <div className="md:col-span-2">
+            <label htmlFor="history" className="block text-sm font-medium text-gray-700">
+              Historia de la empresa
+            </label>
+            <textarea
+              id="history"
+              name="history"
+              rows={5}
+              value={formData.history || ''}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500"
+              placeholder="Historia y trayectoria de la empresa..."
+            ></textarea>
+          </div>
+          
+          <div>
+            <label htmlFor="mission" className="block text-sm font-medium text-gray-700">
+              Misión
+            </label>
+            <textarea
+              id="mission"
+              name="mission"
+              rows={5}
+              value={formData.mission || ''}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500"
+              placeholder="Misión de la empresa..."
+            ></textarea>
+          </div>
+          
+          <div>
+            <label htmlFor="vision" className="block text-sm font-medium text-gray-700">
+              Visión
+            </label>
+            <textarea
+              id="vision"
+              name="vision"
+              rows={5}
+              value={formData.vision || ''}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500"
+              placeholder="Visión de la empresa..."
+            ></textarea>
+          </div>
+          
+          <div className="md:col-span-2">
+            <label htmlFor="values" className="block text-sm font-medium text-gray-700">
+              Valores
+            </label>
+            <textarea
+              id="values"
+              name="values"
+              rows={5}
+              value={formData.values || ''}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500"
+              placeholder="Valores corporativos..."
+            ></textarea>
           </div>
         </div>
         

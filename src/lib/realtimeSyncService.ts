@@ -15,6 +15,12 @@ type PropertyImageRecord = {
   [key: string]: unknown;
 };
 
+// Tipo para los miembros del equipo
+type TeamMemberRecord = {
+  id?: string;
+  [key: string]: unknown;
+};
+
 /**
  * Inicia las suscripciones para escuchar cambios en tiempo real
  * de las tablas relevantes de Supabase e invalidar las cachés correspondientes
@@ -94,10 +100,30 @@ export const startRealtimeSubscriptions = () => {
     )
     .subscribe();
 
+  // Suscripción a cambios en miembros del equipo
+  supabase
+    .channel('team-members-changes')
+    .on(
+      'postgres_changes',
+      {
+        event: '*', // Escuchar INSERT, UPDATE y DELETE
+        schema: 'public',
+        table: 'team_members',
+      },
+      (payload: RealtimePostgresChangesPayload<TeamMemberRecord>) => {
+        console.log('Cambio detectado en miembros del equipo:', payload);
+        
+        // Invalidar caché de miembros del equipo
+        queryClient.invalidateQueries({ queryKey: ['teamMembers'] });
+      }
+    )
+    .subscribe();
+
   // Devolver función para limpiar las suscripciones cuando sea necesario
   return () => {
     supabase.channel('properties-changes').unsubscribe();
     supabase.channel('company-profile-changes').unsubscribe();
     supabase.channel('property-images-changes').unsubscribe();
+    supabase.channel('team-members-changes').unsubscribe();
   };
 };

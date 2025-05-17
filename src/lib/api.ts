@@ -1,6 +1,6 @@
 // filepath: src/lib/api.ts
 import { supabase } from './supabase';
-import { CompanyProfile, Property } from '../types';
+import { CompanyProfile, Property, TeamMember } from '../types';
 
 /**
  * Servicio para obtener el perfil de la empresa
@@ -191,4 +191,38 @@ export const searchFilteredProperties = async (
     console.error("Error en searchFilteredProperties:", error);
     throw error;
   }
+};
+
+/**
+ * Servicio para obtener los miembros activos del equipo
+ */
+export const fetchTeamMembers = async (): Promise<TeamMember[]> => {
+  const { data, error } = await supabase
+    .from('team_members')
+    .select('*')
+    .eq('is_active', true)
+    .order('order_number', { ascending: true });
+  
+  if (error) {
+    throw new Error('Error al cargar los miembros del equipo');
+  }
+  
+  return data as TeamMember[];
+};
+
+/**
+ * Servicio para obtener un miembro del equipo por ID
+ */
+export const fetchTeamMemberById = async (id: string): Promise<TeamMember> => {
+  const { data, error } = await supabase
+    .from('team_members')
+    .select('*')
+    .eq('id', id)
+    .single();
+  
+  if (error) {
+    throw new Error('Error al cargar el miembro del equipo');
+  }
+  
+  return data as TeamMember;
 };

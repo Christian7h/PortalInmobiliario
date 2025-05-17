@@ -39,13 +39,14 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   return (
     <Link 
       to={`/propiedad/${id}`}
-      className="group block rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow bg-white"
+      className="group block w-full h-full rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 bg-white transform hover:scale-[1.02]"
     >
       <div className="relative h-48 overflow-hidden">
         <img 
           src={primaryImage} 
           alt={title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          loading="lazy"
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
         />
         <div className="absolute top-3 left-3 bg-amber-500 text-white px-2 py-1 text-sm font-semibold rounded">
           {formatPrice(price, currency)}

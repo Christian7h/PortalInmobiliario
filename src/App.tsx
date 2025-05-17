@@ -14,6 +14,7 @@ import AdminDashboard from './pages/admin/Dashboard';
 import AdminProperties from './pages/admin/Properties';
 import EditProperty from './pages/admin/EditProperty';
 import CompanyProfile from './pages/admin/CompanyProfile';
+import TeamMembers from './pages/admin/TeamMembers';
 import Login from './pages/Login';
 // import Register from './pages/Register';
 import { AuthProvider } from './context/AuthContext';
@@ -31,7 +32,7 @@ function App() {
   return (
     <PersistQueryClientProvider
       client={queryClient}
-      persistOptions={{ persister }}
+      persistOptions={{ persister: persister || undefined }}
     >
       <AuthProvider>
         <Router>
@@ -55,6 +56,7 @@ function App() {
               <Route path="propiedades/nuevo" element={<EditProperty />} />
               <Route path="propiedades/:id" element={<EditProperty />} />
               <Route path="empresa" element={<CompanyProfile />} />
+              <Route path="equipo" element={<TeamMembers />} />
             </Route>
           </Routes>
         </Router>
