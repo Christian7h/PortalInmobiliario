@@ -5,6 +5,7 @@ import { startRealtimeSubscriptions } from './lib/realtimeSyncService';
 import { useEffect } from 'react';
 import Layout from './components/layout/Layout';
 import ScrollToTop from './components/ScrollTop';
+import ScrollProgress from "./components/ScrollProgress";
 import Home from './pages/Home';
 import PropertyDetail from './pages/PropertyDetail';
 import CategoryPage from './pages/CategoryPage';
@@ -38,6 +39,7 @@ function App() {
       <AuthProvider>
         <Router>
           <ScrollToTop />
+          <ScrollProgress />
           {/* Aquí puedes agregar un componente de carga o un spinner */}
           <Routes>
             <Route path="/" element={<Layout />}>
