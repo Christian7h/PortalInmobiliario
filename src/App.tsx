@@ -4,6 +4,7 @@ import { queryClient, createPersister } from './lib/queryClient';
 import { startRealtimeSubscriptions } from './lib/realtimeSyncService';
 import { useEffect } from 'react';
 import Layout from './components/layout/Layout';
+import ScrollToTop from './components/ScrollTop';
 import Home from './pages/Home';
 import PropertyDetail from './pages/PropertyDetail';
 import CategoryPage from './pages/CategoryPage';
@@ -28,7 +29,7 @@ function App() {
     const cleanupSubscriptions = startRealtimeSubscriptions();
     return () => cleanupSubscriptions(); // Limpiamos las suscripciones al desmontar
   }, []);
-  
+  // Iniciamos la sincronización de caché con el almacenamiento local
   return (
     <PersistQueryClientProvider
       client={queryClient}
@@ -36,6 +37,8 @@ function App() {
     >
       <AuthProvider>
         <Router>
+          <ScrollToTop />
+          {/* Aquí puedes agregar un componente de carga o un spinner */}
           <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />
