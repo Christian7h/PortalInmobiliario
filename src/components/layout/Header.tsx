@@ -42,8 +42,31 @@ const Header = () => {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
+  // Controlar el scroll del body cuando el menú está abierto
+  useEffect(() => {
+    if (isMenuOpen) {
+      // Deshabilitar scroll en el body cuando el menú está abierto
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Restaurar scroll cuando el menú se cierra
+      document.body.style.overflow = '';
+    }
+    
+    // Limpieza al desmontar
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMenuOpen]);
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+  
+  // Cerrar menú al hacer clic fuera
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      setIsMenuOpen(false);
+    }
   };
 
   // Función para determinar si un enlace está activo
@@ -64,20 +87,25 @@ const Header = () => {
     <header 
       className={`sticky top-0 z-40 w-full backdrop-blur-lg backdrop-saturate-[180%] ${
         scrolled 
-          ? 'py-3 shadow-sm border-b border-slate-200/70 bg-white/90' 
-          : 'py-5 bg-white/80'
+          ? 'py-2 md:py-3 shadow-sm border-b border-slate-200/70 bg-white/95' 
+          : 'py-3 md:py-5 bg-white/90'
       } transition-all duration-300 pointer-events-none`}
       onClick={stopPropagation}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between pointer-events-auto">
         {/* Logo y nombre de la empresa */}
-        <Link to="/" className="flex items-center gap-3 group transition-opacity duration-300 hover:opacity-80">
+        <Link to="/" className="flex items-center gap-2.5 group transition-all duration-300 hover:opacity-80 select-none">
           {companyProfile?.logo_url ? (
-            <img src={companyProfile.logo_url} alt="Logo" className="h-9 w-auto filter invert" />
+            <img 
+              src={companyProfile.logo_url} 
+              alt="Logo" 
+              className="h-8 sm:h-9 w-auto filter invert" 
+              loading="eager"
+            />
           ) : (
-            <Building className="h-7 w-7 text-amber-500" />
+            <Building className="h-6 sm:h-7 w-6 sm:w-7 text-amber-500" />
           )}
-          <span className="text-xl font-semibold tracking-tight text-slate-800">
+          <span className="text-lg sm:text-xl font-semibold tracking-tight text-slate-800">
             {companyProfile?.company_name || 'PropPortal'}
           </span>
         </Link>
@@ -155,92 +183,107 @@ const Header = () => {
 
         {/* Botón menú móvil */}
         <button 
-          className="md:hidden text-slate-700 p-1.5 rounded-md hover:bg-slate-100 transition-colors"
+          className="md:hidden text-slate-700 p-2 rounded-lg hover:bg-slate-100 active:bg-slate-200 transition-all duration-150 relative z-50"
           onClick={(e) => {
             e.stopPropagation();
             toggleMenu();
           }}
           aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+          aria-expanded={isMenuOpen}
         >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          {isMenuOpen ? <X size={24} className="text-amber-500" /> : <Menu size={24} />}
         </button>
       </div>
 
-      {/* Navegación móvil */}
+      {/* Navegación móvil - Overlay */}
       <div 
-        className={`fixed inset-0 top-[60px] z-30 bg-white/90 backdrop-blur-lg md:hidden transform transition-transform duration-300 ease-in-out ${
+        className={`fixed inset-0 bg-slate-900/20 z-40 md:hidden transition-opacity duration-300 ${
+          isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={() => setIsMenuOpen(false)}
+        aria-hidden="true"
+      />
+      
+      {/* Navegación móvil - Panel */}
+      <div 
+        className={`fixed  right-0 w-full max-w-xs pt-[60px] z-40 bg-white/95 backdrop-blur-lg md:hidden transform transition-transform duration-300 shadow-xl ${
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        } pointer-events-auto`}
-        onClick={stopPropagation}
+        } pointer-events-auto overflow-hidden`}
       >
-        <div className="h-full overflow-y-auto py-6 px-6 flex flex-col">
+        <div className="h-full overflow-y-auto py-8 px-6 flex flex-col">
           <nav className="flex flex-col space-y-6 mb-10">
             <Link 
               to="/" 
-              className="text-slate-800 text-lg font-medium border-b border-slate-100 pb-3"
+              className={`flex items-center justify-between text-slate-800 text-lg font-medium border-b border-slate-200 pb-4 hover:text-amber-500 transition-colors ${isActive('/') ? 'text-amber-500' : ''}`}
               onClick={(e) => {
                 e.stopPropagation();
                 toggleMenu();
               }}
             >
-              Inicio
+              <span>Inicio</span>
+              {isActive('/') && <span className="h-2 w-2 rounded-full bg-amber-500"></span>}
             </Link>
             <Link 
               to="/categoria/casa" 
-              className="text-slate-800 text-lg font-medium border-b border-slate-100 pb-3"
+              className={`flex items-center justify-between text-slate-800 text-lg font-medium border-b border-slate-200 pb-4 hover:text-amber-500 transition-colors ${isActive('/categoria/casa') ? 'text-amber-500' : ''}`}
               onClick={(e) => {
                 e.stopPropagation();
                 toggleMenu();
               }}
             >
-              Casas
+              <span>Casas</span>
+              {isActive('/categoria/casa') && <span className="h-2 w-2 rounded-full bg-amber-500"></span>}
             </Link>
             <Link 
               to="/categoria/departamento" 
-              className="text-slate-800 text-lg font-medium border-b border-slate-100 pb-3"
+              className={`flex items-center justify-between text-slate-800 text-lg font-medium border-b border-slate-200 pb-4 hover:text-amber-500 transition-colors ${isActive('/categoria/departamento') ? 'text-amber-500' : ''}`}
               onClick={(e) => {
                 e.stopPropagation();
                 toggleMenu();
               }}
             >
-              Departamentos
+              <span>Departamentos</span>
+              {isActive('/categoria/departamento') && <span className="h-2 w-2 rounded-full bg-amber-500"></span>}
             </Link>
             <Link 
               to="/categoria/terreno" 
-              className="text-slate-800 text-lg font-medium border-b border-slate-100 pb-3"
+              className={`flex items-center justify-between text-slate-800 text-lg font-medium border-b border-slate-200 pb-4 hover:text-amber-500 transition-colors ${isActive('/categoria/terreno') ? 'text-amber-500' : ''}`}
               onClick={(e) => {
                 e.stopPropagation();
                 toggleMenu();
               }}
             >
-              Terrenos
+              <span>Terrenos</span>
+              {isActive('/categoria/terreno') && <span className="h-2 w-2 rounded-full bg-amber-500"></span>}
             </Link>
             <Link 
               to="/nosotros" 
-              className="text-slate-800 text-lg font-medium border-b border-slate-100 pb-3"
+              className={`flex items-center justify-between text-slate-800 text-lg font-medium border-b border-slate-200 pb-4 hover:text-amber-500 transition-colors ${isActive('/nosotros') ? 'text-amber-500' : ''}`}
               onClick={(e) => {
                 e.stopPropagation();
                 toggleMenu();
               }}
             >
-              Nosotros
+              <span>Nosotros</span>
+              {isActive('/nosotros') && <span className="h-2 w-2 rounded-full bg-amber-500"></span>}
             </Link>
             <Link 
               to="/contacto" 
-              className="text-slate-800 text-lg font-medium border-b border-slate-100 pb-3"
+              className={`flex items-center justify-between text-slate-800 text-lg font-medium border-b border-slate-200 pb-4 hover:text-amber-500 transition-colors ${isActive('/contacto') ? 'text-amber-500' : ''}`}
               onClick={(e) => {
                 e.stopPropagation();
                 toggleMenu();
               }}
             >
-              Contacto
+              <span>Contacto</span>
+              {isActive('/contacto') && <span className="h-2 w-2 rounded-full bg-amber-500"></span>}
             </Link>
           </nav>
-          <div className="mt-auto flex justify-center">
+          <div className="mt-auto py-6 flex justify-center">
             {user ? (
               <Link 
                 to="/admin" 
-                className="flex items-center justify-center gap-2 w-full border border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-white px-4 py-3 rounded-xl font-medium transition-colors duration-300"
+                className="flex items-center justify-center gap-2 w-full border border-amber-500 text-amber-500 hover:bg-amber-500 hover:text-white px-4 py-3.5 rounded-xl font-medium transition-all duration-300 active:scale-95"
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleMenu();
@@ -252,7 +295,7 @@ const Header = () => {
             ) : (
               <Link 
                 to="/login" 
-                className="flex items-center justify-center gap-2 w-full bg-amber-500 text-white px-4 py-3 rounded-xl font-medium transition-all duration-300"
+                className="flex items-center justify-center gap-2 w-full bg-gradient-to-r from-amber-500 to-amber-600 text-white px-4 py-3.5 rounded-xl font-medium shadow-md hover:shadow-lg hover:shadow-amber-200/50 transition-all duration-300 active:scale-95"
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleMenu();
