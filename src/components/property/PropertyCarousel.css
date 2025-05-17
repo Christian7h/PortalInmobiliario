@@ -11,7 +11,6 @@ swiper-slide {
   height: auto;
   display: flex;
   justify-content: center;
-  width: 40% !important; /* Aseguramos que el width sea gestionado por Swiper */
 }
 
 /* Botones de navegación - aseguramos que sean visibles */
