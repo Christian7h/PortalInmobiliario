@@ -73,7 +73,7 @@ const Header = () => {
         {/* Logo y nombre de la empresa */}
         <Link to="/" className="flex items-center gap-3 group transition-opacity duration-300 hover:opacity-80">
           {companyProfile?.logo_url ? (
-            <img src={companyProfile.logo_url} alt="Logo" className="h-9 w-auto" />
+            <img src={companyProfile.logo_url} alt="Logo" className="h-9 w-auto filter invert" />
           ) : (
             <Building className="h-7 w-7 text-amber-500" />
           )}
