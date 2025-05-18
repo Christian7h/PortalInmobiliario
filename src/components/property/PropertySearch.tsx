@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Home, DollarSign, MapPin, Filter, Bed, Bath } from 'lucide-react';
-import type { PropertyType, Currency } from '../../types';
+import { Search, Home, DollarSign, MapPin, Filter, Bed, Bath, Tag, Clock } from 'lucide-react';
+import type { PropertyType, Currency, OperationType, PublicationStatus } from '../../types';
 
 const propertyTypes: { value: PropertyType; label: string }[] = [
   { value: 'casa', label: 'Casas' },
@@ -43,6 +43,8 @@ const PropertySearch: React.FC = () => {
   const [currency, setCurrency] = useState<Currency>('CLP');
   const [minBedrooms, setMinBedrooms] = useState('');
   const [minBathrooms, setMinBathrooms] = useState('');
+  const [operationType, setOperationType] = useState<'venta' | 'arriendo' | 'todos'>('todos');
+  const [publicationStatus, setPublicationStatus] = useState<'disponible' | 'todos'>('disponible');
   const navigate = useNavigate();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -57,6 +59,8 @@ const PropertySearch: React.FC = () => {
     if (currency) params.append('currency', currency);
     if (minBedrooms) params.append('minBedrooms', minBedrooms);
     if (minBathrooms) params.append('minBathrooms', minBathrooms);
+    if (operationType !== 'todos') params.append('operationType', operationType);
+    if (publicationStatus !== 'todos') params.append('publicationStatus', publicationStatus);
     
     navigate(`/categoria/${selectedType}?${params.toString()}`);
   };
@@ -123,6 +127,48 @@ const PropertySearch: React.FC = () => {
 
         {showAdvanced && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 mt-4 border-t border-gray-200">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <div className="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1 text-amber-500">
+                      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                      <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                    </svg>
+                    Operación
+                  </div>
+                </label>
+                <select
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  value={operationType}
+                  onChange={(e) => setOperationType(e.target.value as 'venta' | 'arriendo' | 'todos')}
+                >
+                  <option value="todos">Todas</option>
+                  <option value="venta">Venta</option>
+                  <option value="arriendo">Arriendo</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <div className="flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1 text-amber-500">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    Estado
+                  </div>
+                </label>
+                <select
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  value={publicationStatus}
+                  onChange={(e) => setPublicationStatus(e.target.value as 'disponible' | 'todos')}
+                >
+                  <option value="disponible">Disponibles</option>
+                  <option value="todos">Todos</option>
+                </select>
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 <div className="flex items-center">

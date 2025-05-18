@@ -31,7 +31,6 @@ function CategoryPage() {
   const { type } = useParams<{ type: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
-
   // Obtener parámetros de búsqueda
   const location = searchParams.get('location') || '';
   const minPrice = searchParams.get('minPrice') || '';
@@ -40,21 +39,21 @@ function CategoryPage() {
   const minBedrooms = searchParams.get('minBedrooms') || '';
   const minBathrooms = searchParams.get('minBathrooms') || '';
   const sortBy = searchParams.get('sortBy') || 'newest';
+  const operationType = searchParams.get('operationType') || '';
+  const publicationStatus = searchParams.get('publicationStatus') || 'disponible';
 
   // Utilizamos React Query para memorizar la consulta
   const { 
     data: properties = [], 
     isLoading: loading 
-  } = useQuery<Property[], Error>({
-    queryKey: ['properties', type, location, minPrice, maxPrice, currency, minBedrooms, minBathrooms, sortBy],
+  } = useQuery<Property[], Error>({    queryKey: ['properties', type, location, minPrice, maxPrice, currency, minBedrooms, minBathrooms, sortBy, operationType, publicationStatus],
     queryFn: () => searchFilteredProperties(
       type || 'casa', 
-      { location, minPrice, maxPrice, currency, minBedrooms, minBathrooms, sortBy }
+      { location, minPrice, maxPrice, currency, minBedrooms, minBathrooms, sortBy, operationType, publicationStatus }
     ),
     staleTime: 1000 * 60 * 5, // 5 minutos antes de considerar datos obsoletos
     enabled: !!type, // Solo ejecuta la consulta si hay un tipo de propiedad
   });
-
   // Actualizar los filtros activos cuando cambien los parámetros
   useEffect(() => {
     const filters = [];
@@ -68,9 +67,11 @@ function CategoryPage() {
     }
     if (minBedrooms) filters.push(`Dormitorios: ${minBedrooms}+`);
     if (minBathrooms) filters.push(`Baños: ${minBathrooms}+`);
+    if (operationType) filters.push(`Operación: ${operationType === 'venta' ? 'Venta' : 'Arriendo'}`);
+    if (publicationStatus === 'disponible') filters.push('Estado: Disponible');
     
     setActiveFilters(filters);
-  }, [location, minPrice, maxPrice, currency, minBedrooms, minBathrooms]);
+  }, [location, minPrice, maxPrice, currency, minBedrooms, minBathrooms, operationType, publicationStatus]);
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newParams = new URLSearchParams(searchParams);

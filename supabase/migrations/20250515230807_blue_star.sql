@@ -71,6 +71,8 @@ CREATE TABLE IF NOT EXISTS properties (
   area_unit text DEFAULT 'm²',
   property_type text NOT NULL CHECK (property_type IN ('casa', 'departamento', 'oficina', 'local', 'bodega', 'industrial', 'terreno', 'parcela', 'sitio', 'loteo', 'agricola')),
   is_featured boolean DEFAULT false,
+  publication_status text NOT NULL DEFAULT 'disponible' CHECK (publication_status IN ('disponible', 'reservado', 'arrendado', 'vendido')),
+  operation_type text NOT NULL CHECK (operation_type IN ('venta', 'arriendo')),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE
 );
 

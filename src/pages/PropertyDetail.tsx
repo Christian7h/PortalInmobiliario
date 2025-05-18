@@ -126,7 +126,26 @@ const PropertyDetail: React.FC = () => {
               {/* Property Info */}
               <div className="p-6 pt-8 relative z-10 bg-white">
                 <div className="flex flex-wrap justify-between items-start mb-4">
-                  <h1 className="text-2xl font-bold text-slate-800 mb-2 md:mb-0">{property.title}</h1>
+                  <div>
+                    <h1 className="text-2xl font-bold text-slate-800 mb-2 md:mb-0">{property.title}</h1>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium ${
+                        property.operation_type === 'venta' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                      }`}>
+                        {property.operation_type === 'venta' ? 'Venta' : 'Arriendo'}
+                      </span>
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium ${
+                        property.publication_status === 'disponible' ? 'bg-green-100 text-green-800' : 
+                        property.publication_status === 'reservado' ? 'bg-yellow-100 text-yellow-800' : 
+                        property.publication_status === 'arrendado' ? 'bg-purple-100 text-purple-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {property.publication_status === 'disponible' ? 'Disponible' :
+                         property.publication_status === 'reservado' ? 'Reservado' :
+                         property.publication_status === 'arrendado' ? 'Arrendado' : 'Vendido'}
+                      </span>
+                    </div>
+                  </div>
                   <div className="text-2xl font-bold text-amber-600">
                     {formatPrice(property.price, property.currency)}
                   </div>

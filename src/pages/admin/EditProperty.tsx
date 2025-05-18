@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
-import { PropertyImage, PropertyType, Currency } from '../../types';
+import { PropertyImage, PropertyType, Currency, PublicationStatus, OperationType } from '../../types';
 import PropertyImages from '../../components/property/PropertyImages';
 import LocationPicker from '../../components/property/LocationPicker';
 
@@ -21,6 +21,8 @@ interface PropertyFormData {
   area_unit: string;
   property_type: PropertyType;
   is_featured: boolean;
+  publication_status: 'disponible' | 'reservado' | 'arrendado' | 'vendido';
+  operation_type: 'venta' | 'arriendo';
   user_id?: string;
 }
 
@@ -55,7 +57,9 @@ const EditProperty = () => {
     city: '',
     area_unit: 'm²',
     property_type: 'casa',
-    is_featured: false
+    is_featured: false,
+    publication_status: 'disponible',
+    operation_type: 'venta'
   });
 
   const loadProperty = useCallback(async () => {
@@ -89,7 +93,9 @@ const EditProperty = () => {
           area: propertyData.area,
           area_unit: propertyData.area_unit || 'm²',
           property_type: propertyData.property_type || 'casa',
-          is_featured: propertyData.is_featured || false
+          is_featured: propertyData.is_featured || false,
+          publication_status: propertyData.publication_status || 'disponible',
+          operation_type: propertyData.operation_type || 'venta'
         });
       }
       
@@ -324,9 +330,39 @@ const EditProperty = () => {
                 </select>
               </div>
             </div>
-          </div>
-          
-          <div className="space-y-6">
+          </div>              <div className="space-y-6">
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Tipo de Operación</label>
+                <select
+                  name="operation_type"
+                  value={formData.operation_type}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500"
+                >
+                  <option value="venta">Venta</option>
+                  <option value="arriendo">Arriendo</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Estado de Publicación</label>
+                <select
+                  name="publication_status"
+                  value={formData.publication_status}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500"
+                >
+                  <option value="disponible">Disponible</option>
+                  <option value="reservado">Reservado</option>
+                  <option value="arrendado">Arrendado</option>
+                  <option value="vendido">Vendido</option>
+                </select>
+              </div>
+            </div>
+            
             <div>
               <label className="block text-sm font-medium text-gray-700">Descripción</label>
               <textarea

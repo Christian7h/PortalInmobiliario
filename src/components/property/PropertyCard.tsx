@@ -21,7 +21,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
     bedrooms, 
     bathrooms, 
     area, 
-    images = []
+    images = [],
+    operation_type = 'venta',
+    publication_status = 'disponible'
   } = property;
   
   const formatPrice = (price: number, currency: string) => {
@@ -50,6 +52,26 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
         />
         <div className="absolute top-3 left-3 bg-amber-500 text-white px-2 py-1 text-sm font-semibold rounded">
           {formatPrice(price, currency)}
+        </div>
+        
+        {/* Estado de publicación */}
+        <div className="absolute top-3 right-3 flex flex-col gap-2">
+          <span className={`px-2 py-1 text-xs font-medium rounded-md ${
+            operation_type === 'venta' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+          }`}>
+            {operation_type === 'venta' ? 'Venta' : 'Arriendo'}
+          </span>
+          
+          {publication_status !== 'disponible' && (
+            <span className={`px-2 py-1 text-xs font-medium rounded-md ${
+              publication_status === 'reservado' ? 'bg-yellow-100 text-yellow-800' : 
+              publication_status === 'arrendado' ? 'bg-purple-100 text-purple-800' :
+              'bg-red-100 text-red-800'
+            }`}>
+              {publication_status === 'reservado' ? 'Reservado' :
+               publication_status === 'arrendado' ? 'Arrendado' : 'Vendido'}
+            </span>
+          )}
         </div>
       </div>
       

@@ -130,6 +130,8 @@ export const searchFilteredProperties = async (
     minBedrooms?: string;
     minBathrooms?: string;
     sortBy?: string;
+    operationType?: string;
+    publicationStatus?: string;
   }
 ): Promise<Property[]> => {
   try {
@@ -155,9 +157,18 @@ export const searchFilteredProperties = async (
     if (filters.minBedrooms) {
       query = query.gte('bedrooms', filters.minBedrooms);
     }
-    
-    if (filters.minBathrooms) {
+      if (filters.minBathrooms) {
       query = query.gte('bathrooms', filters.minBathrooms);
+    }
+    
+    // Filtrar por tipo de operación
+    if (filters.operationType) {
+      query = query.eq('operation_type', filters.operationType);
+    }
+    
+    // Filtrar por estado de publicación
+    if (filters.publicationStatus === 'disponible') {
+      query = query.eq('publication_status', 'disponible');
     }
     
     // Aplicar ordenamiento

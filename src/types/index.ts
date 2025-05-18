@@ -13,6 +13,10 @@ export type PropertyType =
 
 export type Currency = 'CLP' | 'UF';
 
+export type PublicationStatus = 'disponible' | 'reservado' | 'arrendado' | 'vendido';
+
+export type OperationType = 'venta' | 'arriendo';
+
 export interface Property {
   id: string;
   title: string;
@@ -29,6 +33,8 @@ export interface Property {
   area_unit: string;
   property_type: PropertyType;
   is_featured: boolean;
+  publication_status: PublicationStatus;
+  operation_type: OperationType;
   user_id: string;
   created_at: string;
   updated_at: string;
