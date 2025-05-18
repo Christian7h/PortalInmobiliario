@@ -7,6 +7,7 @@ import { register } from 'swiper/element/bundle';
 import L from 'leaflet';
 import { useQuery } from '@tanstack/react-query';
 import { fetchPropertyById } from '../lib/api';
+import './PropertyDetail.css';
 
 // Corrigiendo el problema de íconos de Leaflet en el entorno de React
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -93,34 +94,37 @@ const PropertyDetail: React.FC = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="bg-white rounded-lg shadow-md overflow-hidden relative">
               {/* Image Gallery */}
               {property.images && property.images.length > 0 ? (
-                <div className="relative h-96">
-                  <swiper-container
-                    navigation="true"
-                    pagination="true"
-                    className="h-full w-full"
-                  >
-                    {property.images.map((image) => (
-                      <swiper-slide key={image.id}>
-                        <img 
-                          src={image.image_url} 
-                          alt={property.title}
-                          className="w-full h-full object-cover"
-                        />
-                      </swiper-slide>
-                    ))}
-                  </swiper-container>
+                <div className="relative property-detail-gallery">
+                  {/* Reemplazamos la altura fija por diseño responsive */}
+                  <div className="w-full aspect-[16/9] md:aspect-[16/10] lg:aspect-[16/8] relative">
+                    <swiper-container
+                      navigation="true"
+                      pagination="true"
+                      className="h-full w-full absolute inset-0"
+                    >
+                      {property.images.map((image) => (
+                        <swiper-slide key={image.id}>
+                          <img 
+                            src={image.image_url} 
+                            alt={property.title}
+                            className="w-full h-full object-cover"
+                          />
+                        </swiper-slide>
+                      ))}
+                    </swiper-container>
+                  </div>
                 </div>
               ) : (
-                <div className="h-96 bg-gray-200 flex items-center justify-center">
+                <div className="w-full aspect-[16/9] md:aspect-[16/10] lg:aspect-[16/8] bg-gray-200 flex items-center justify-center">
                   <p className="text-gray-500">No hay imágenes disponibles</p>
                 </div>
               )}
 
               {/* Property Info */}
-              <div className="p-6">
+              <div className="p-6 pt-8 relative z-10 bg-white">
                 <div className="flex flex-wrap justify-between items-start mb-4">
                   <h1 className="text-2xl font-bold text-slate-800 mb-2 md:mb-0">{property.title}</h1>
                   <div className="text-2xl font-bold text-amber-600">

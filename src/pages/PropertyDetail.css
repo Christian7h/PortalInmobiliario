@@ -1,0 +1,84 @@
+/* Estilos específicos para la página de detalle de propiedad */
+.property-detail-gallery swiper-container {
+  width: 100%;
+  height: 100%;
+  position: absolute !important;
+  top: 0;
+  left: 0;
+}
+
+.property-detail-gallery swiper-slide {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.property-detail-gallery img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Estilos para controles del carrusel */
+.property-detail-gallery swiper-container::part(button-prev),
+.property-detail-gallery swiper-container::part(button-next) {
+  color: #f59e0b !important;
+  background-color: white !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  z-index: 10 !important;
+}
+
+.property-detail-gallery swiper-container::part(button-prev):hover,
+.property-detail-gallery swiper-container::part(button-next):hover {
+  background-color: #f59e0b !important;
+  color: white !important;
+}
+
+/* Paginación */
+.property-detail-gallery swiper-container::part(pagination) {
+  bottom: 10px !important;
+  position: absolute !important;
+}
+
+.property-detail-gallery swiper-container::part(bullet) {
+  width: 10px !important;
+  height: 10px !important;
+  background-color: rgba(255, 255, 255, 0.7) !important;
+  opacity: 1 !important;
+  margin: 0 5px !important;
+}
+
+.property-detail-gallery swiper-container::part(bullet-active) {
+  background-color: #f59e0b !important;
+  width: 12px !important;
+  height: 12px !important;
+}
+
+/* Soporte para aspect-ratio en navegadores más antiguos */
+@supports not (aspect-ratio: 16/9) {
+  .property-detail-gallery > div::before {
+    content: '';
+    display: block;
+    padding-top: 56.25%; /* 16:9 */
+  }
+  
+  @media (min-width: 768px) {
+    .property-detail-gallery > div::before {
+      padding-top: 62.5%; /* 16:10 */
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .property-detail-gallery > div::before {
+      padding-top: 50%; /* 16:8 */
+    }
+  }
+}
