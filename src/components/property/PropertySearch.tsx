@@ -176,7 +176,7 @@ const PropertySearch: React.FC = () => {
                   Precio
                 </div>
               </label>
-              <div className="flex items-center gap-2">
+              <div className="grid items-center gap-2">
                 <select
                   className="w-24 p-2 border border-gray-300 rounded-md"
                   value={currency}
