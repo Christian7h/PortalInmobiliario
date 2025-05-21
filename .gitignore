@@ -33,16 +33,23 @@ dist-ssr
 .env.development.local
 .env.test.local
 .env.production.local
+.env.example
+.env.*
 
 # Supabase
 .supabase
+**/.branches
+**/.temp
+**/.functions
 
 # Testing
 coverage
+.nyc_output
 
 # Build files
 build
 out
+dist
 
 # Miscellaneous
 .cache
@@ -50,3 +57,23 @@ out
 .vercel
 .netlify
 .history
+
+# API Keys and Secrets
+*.pem
+api-keys.json
+secrets.json
+**/serviceAccountKey.json
+
+# Credenciales y configuración local
+**/credentials.json
+local.settings.json
+sendgrid.env
+
+# Scripts de prueba temporales
+**/test-*.js
+**/temp-*.js
+
+# Archivos generados
+.eslintcache
+.stylelintcache
+tsconfig.tsbuildinfo

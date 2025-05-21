@@ -17,6 +17,27 @@ export type PublicationStatus = 'disponible' | 'reservado' | 'arrendado' | 'vend
 
 export type OperationType = 'venta' | 'arriendo';
 
+export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'unqualified' | 'converted';
+
+export type LeadSource = 'website' | 'whatsapp' | 'email';
+
+export interface Lead {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+  property_id: string | null;
+  status: LeadStatus;
+  notes: string | null;
+  user_id: string;
+  source: LeadSource;
+  last_contact: string;
+  property?: Property;
+}
+
 export interface Property {
   id: string;
   title: string;

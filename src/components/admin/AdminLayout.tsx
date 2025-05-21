@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Outlet, Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Building, Home, LayoutDashboard, LogOut, Menu, Plus, UserCircle, X, Settings } from 'lucide-react';
+import { Building, Home, LayoutDashboard, LogOut, Menu, Plus, UserCircle, X, Settings,Users } from 'lucide-react';
 
 const AdminLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -77,7 +77,19 @@ const AdminLayout: React.FC = () => {
               <Plus className="h-5 w-5 mr-3" />
               Nueva propiedad
             </Link>
-            
+            <NavLink 
+              to="/admin/leads" 
+              className={({ isActive }) => 
+                `flex items-center px-4 py-3 rounded-md transition-colors ${
+                  isActive 
+                    ? 'bg-slate-700 text-amber-400'
+                    : 'text-gray-300 hover:bg-slate-700 hover:text-white'
+                }`
+              }
+            >
+              <Users className="h-5 w-5 mr-3" />
+              Clientes Potenciales  
+            </NavLink>
             <NavLink 
               to="/admin/perfil" 
               className={({ isActive }) => 
