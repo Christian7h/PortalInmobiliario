@@ -25,6 +25,7 @@ import { useState } from "react";
 import VirtualTour from "../components/property/VirtualTour";
 import MortgageCalculator from "../components/property/MortgageCalculator";
 import NeighborhoodAnalytics from "../components/property/NeighborhoodAnalytics";
+import NeighborhoodAnalyticsCard from "../components/property/NeighborhoodAnalyticsCard";
 import PropertyComparison from "../components/property/PropertyComparison";
 
 // Corrigiendo el problema de íconos de Leaflet en el entorno de React
@@ -137,10 +138,10 @@ const PropertyDetail: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
-              {/* Image Gallery */}
+              {/* Image Gallery */}{" "}
               {property.images && property.images.length > 0 ? (
                 <div className="relative h-96 overflow-hidden">
-                  <swiper-container
+                <swiper-container
                     navigation="true"
                     pagination="true"
                     class="h-full w-full"
@@ -282,32 +283,149 @@ const PropertyDetail: React.FC = () => {
                         </div>
                       )}
                     </div>
-                  </div>
-                )}
 
+                    {/* Características adicionales de la propiedad */}
+                    <div className="mb-8">
+                      <h2 className="text-xl font-semibold text-slate-800 mb-4">
+                        Características de la Propiedad
+                      </h2>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {property.year_built && (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                            <span className="text-gray-600">
+                              Año de construcción: {property.year_built}
+                            </span>
+                          </div>
+                        )}
+
+                        {property.parking_spaces !== undefined && (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                            <span className="text-gray-600">
+                              Estacionamientos: {property.parking_spaces}
+                            </span>
+                          </div>
+                        )}
+
+                        {property.floor_number !== undefined && (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                            <span className="text-gray-600">
+                              Piso N°: {property.floor_number}
+                            </span>
+                          </div>
+                        )}
+
+                        {property.total_floors !== undefined && (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                            <span className="text-gray-600">
+                              Total pisos: {property.total_floors}
+                            </span>
+                          </div>
+                        )}
+
+                        {property.maintenance_fee != null && (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                            <span className="text-gray-600">
+                              Gastos comunes:{" "}
+                              {property.currency === "UF"
+                                ? `UF ${property.maintenance_fee}`
+                                : `$${Number(
+                                    property.maintenance_fee
+                                  ).toLocaleString("es-CL")}`}
+                            </span>
+                          </div>
+                        )}
+
+                        {property.energy_rating && (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                            <span className="text-gray-600">
+                              Certificación energética: {property.energy_rating}
+                            </span>
+                          </div>
+                        )}
+
+                        {property.construction_status && (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                            <span className="text-gray-600">
+                              Estado:
+                              {property.construction_status === "terminado" &&
+                                " Terminado"}
+                              {property.construction_status ===
+                                "en_construccion" && " En construcción"}
+                              {property.construction_status === "en_plano" &&
+                                " En plano"}
+                              {property.construction_status === "por_renovar" &&
+                                " Por renovar"}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Botón para ver el tour virtual si existe */}
+                    {property.virtual_tour_url && (
+                      <div className="mb-8">
+                        <button
+                          onClick={() => setActiveTab("virtual")}
+                          className="flex items-center justify-center px-4 py-2 rounded-md bg-amber-500 text-white hover:bg-amber-600 transition-colors"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5 mr-2"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          Ver tour virtual de la propiedad
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}{" "}
                 {activeTab === "virtual" && (
                   <VirtualTour
-                      tourUrl="https://my.matterport.com/show/?m=t5Z746VgA6k&help=1&ss=35&sr=-3.05,.78"
+                    tourUrl={property.virtual_tour_url}
                     title={property.title}
                   />
                 )}
-
                 {activeTab === "calculator" && (
                   <MortgageCalculator
                     propertyPrice={property.price}
                     currency={property.currency}
                   />
                 )}
-
-                {activeTab === "analytics" &&
-                  property.latitude &&
-                  property.longitude && (
-                    <NeighborhoodAnalytics
-                      latitude={property.latitude}
-                      longitude={property.longitude}
+                {activeTab === "analytics" && (
+                  <>
+                    {/* Estadísticas del vecindario usando nuestro nuevo componente */}
+                    <NeighborhoodAnalyticsCard
+                      neighborhoodData={{
+                        schools_nearby: property.schools_nearby,
+                        shops_nearby: property.shops_nearby,
+                        transport_nearby: property.transport_nearby,
+                        green_areas_nearby: property.green_areas_nearby,
+                        services_nearby: property.services_nearby,
+                        avg_square_meter_price: property.avg_square_meter_price,
+                        annual_value_increase: property.annual_value_increase,
+                        security_index: property.security_index,
+                        life_quality_index: property.life_quality_index,
+                        demographics: property.demographics,
+                      }}
+                      currency={property.currency}
                     />
-                  )}
-
+                  </>
+                )}
                 {activeTab === "comparison" && (
                   <PropertyComparison currentPropertyId={property.id} />
                 )}

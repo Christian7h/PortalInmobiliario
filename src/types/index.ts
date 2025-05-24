@@ -17,6 +17,10 @@ export type PublicationStatus = 'disponible' | 'reservado' | 'arrendado' | 'vend
 
 export type OperationType = 'venta' | 'arriendo';
 
+export type EnergyRating = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G';
+
+export type ConstructionStatus = 'terminado' | 'en_construccion' | 'en_plano' | 'por_renovar';
+
 export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'unqualified' | 'converted';
 
 export type LeadSource = 'website' | 'whatsapp' | 'email';
@@ -38,6 +42,11 @@ export interface Lead {
   property?: Property;
 }
 
+export interface ServicesNearby {
+  count: number;
+  distance: number;
+}
+
 export interface Property {
   id: string;
   title: string;
@@ -49,6 +58,32 @@ export interface Property {
   longitude?: number;
   latitude?: number;
   bedrooms?: number;
+  // Nuevos campos de análisis
+  virtual_tour_url?: string;
+  year_built?: number;
+  parking_spaces?: number;
+  total_floors?: number;
+  floor_number?: number;
+  maintenance_fee?: number;
+  energy_rating?: EnergyRating;
+  construction_status?: ConstructionStatus;
+  // Campos de análisis del vecindario
+  schools_nearby?: ServicesNearby;
+  shops_nearby?: ServicesNearby;
+  transport_nearby?: ServicesNearby;
+  green_areas_nearby?: ServicesNearby;
+  services_nearby?: ServicesNearby;
+  avg_square_meter_price?: number;
+  annual_value_increase?: number;
+  security_index?: number;
+  life_quality_index?: number;
+  // Demografía del vecindario
+  demographics?: {
+    families?: number;
+    young_professionals?: number;
+    retired?: number;
+    students?: number;
+  };
   bathrooms?: number;
   area?: number;
   area_unit: string;
