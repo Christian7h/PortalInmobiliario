@@ -205,12 +205,20 @@ const Header = () => {
       />
       
       {/* Navegación móvil - Panel */}
-      <div 
-        className={`fixed  right-0 w-full max-w-xs pt-[60px] z-40 bg-white/95 backdrop-blur-lg md:hidden transform transition-transform duration-300 shadow-xl ${
-          isMenuOpen ? 'translate-x-0' : 'translate-x-full'
-        } pointer-events-auto overflow-hidden`}
-      >
+<div 
+  className={`fixed top-0 left-0 right-0 bottom-0 w-full pt-[60px] h-screen z-50 bg-white/95 backdrop-blur-lg md:hidden transform transition-transform duration-300 shadow-xl ${
+    isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+  } pointer-events-auto overflow-hidden`}
+>
         <div className="h-full overflow-y-auto py-8 px-6 flex flex-col">
+              {/* Botón de cerrar menú */}
+    <button
+      onClick={toggleMenu}
+      className="absolute top-4 right-4 text-slate-700 hover:text-amber-500 transition-colors z-50"
+      aria-label="Cerrar menú"
+    >
+      <X size={28} />
+    </button>
           <nav className="flex flex-col space-y-6 mb-10">
             <Link 
               to="/" 
