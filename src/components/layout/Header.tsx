@@ -85,7 +85,7 @@ const Header = () => {
 
   return (
     <header 
-      className={`sticky top-0 z-40 w-full backdrop-blur-lg backdrop-saturate-[180%] ${
+      className={`fixed top-0 left-0 right-0 z-40 w-full backdrop-blur-lg backdrop-saturate-[180%] ${
         scrolled 
           ? 'py-2 md:py-3 shadow-sm border-b border-slate-200/70 bg-white/95' 
           : 'py-3 md:py-5 bg-white/90'
