@@ -24,7 +24,7 @@ const Layout = () => {
         <Outlet />
       </main>
       {companyProfile?.whatsapp_number && (
-        <div className="fixed bottom-8 right-8 z-50">
+        <div className="fixed bottom-8 right-8 z-20">
           <a
             href={`https://wa.me/${companyProfile.whatsapp_number.replace(/[^0-9]/g, '')}`}
             target="_blank"
